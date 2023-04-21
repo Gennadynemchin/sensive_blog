@@ -31,16 +31,15 @@ def serialize_post_optimized(post):
         'published_at': post.published_at,
         'slug': post.slug,
         'tags': [serialize_tag(tag) for tag in post.tags.all()],
-        # 'tags': [tag for tag in post.tags.all()],
-        'first_tag_title': post.tags.all()[0].title,
+        # 'tags': post.tags.all(),
+        'first_tag_title': post.tags.first().title,
     }
 
 
 def serialize_tag(tag):
     return {
         'title': tag.title,
-        'posts_with_tag': len(Post.objects.filter(tags=tag)),
-        # 'posts_with_tag': tag.tags_count
+        'posts_with_tag': tag.posts.all().count()
     }
 
 
@@ -57,6 +56,7 @@ def index(request):
     most_fresh_posts = list(fresh_posts)
     most_popular_tags = Tag.objects.annotate(tags_count=Count('posts')).order_by('-tags_count')[0:5]
 
+    # popular_tags = Tag.objects.annotate(posts_count=Count('posts')).order_by('-posts_count')
 
 
     context = {
