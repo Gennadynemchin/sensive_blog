@@ -52,11 +52,8 @@ def index(request):
     for post in most_popular_posts:
         post.comments_count = count_for_id[post.id]
 
-    fresh_posts = posts_with_comments.order_by('published_at').prefetch_related('author')
-    most_fresh_posts = list(fresh_posts)
-    most_popular_tags = Tag.objects.annotate(tags_count=Count('posts')).order_by('-tags_count')[0:5]
-
-    # popular_tags = Tag.objects.annotate(posts_count=Count('posts')).order_by('-posts_count')
+    most_fresh_posts = list(posts_with_comments.order_by('published_at').prefetch_related('author'))
+    most_popular_tags = Tag.objects.annotate(tags_count=Count('posts')).order_by('-tags_count')
 
 
     context = {
@@ -64,7 +61,7 @@ def index(request):
             serialize_post_optimized(post) for post in most_popular_posts[0:5]
         ],
         'page_posts': [serialize_post_optimized(post) for post in most_fresh_posts[-5:]],
-        'popular_tags': [serialize_tag(tag) for tag in most_popular_tags],
+        'popular_tags': [serialize_tag(tag) for tag in most_popular_tags[0:5]],
     }
     return render(request, 'index.html', context)
 
